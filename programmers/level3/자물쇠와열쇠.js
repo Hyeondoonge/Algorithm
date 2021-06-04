@@ -1,4 +1,6 @@
-// 실패
+// 핵심
+// 1. 90, 180, 270도 회전은 90도 회전 하나로 가능하다.
+// 2. key의 이동범위를 정확하게 계산한다. (어림하지 말 것)
 
 const rotate90 = (key) => {
     const rotatedKey = [];
@@ -13,35 +15,7 @@ const rotate90 = (key) => {
         rotatedKey.push(r);
     }
     return rotatedKey;
-}
-
-const rotate180 = (key) => {
-    const rotatedKey = [];
-    const m = key.length;
-    
-    for(let i = m - 1; i >= 0; i--) {
-        const r = [];
-        for(let j = m - 1; j >= 0; j--) {
-            r.push(key[i][j]);
-        }
-        rotatedKey.push(r);
-    }
-    return rotatedKey;
-}
-
-const rotate270 = (key) => {
-    const rotatedKey = [];
-    const m = key.length;
-
-    for(let j = m - 1; j >= 0; j--) {
-        const r = [];
-        for(let i = 0; i < m; i++) {
-            r.push(key[i][j]);
-        }
-        rotatedKey.push(r);
-    }
-    return rotatedKey;
-}
+};
 
 const compare = (key, board, home, {r, c}) => {
     let find = 0;
@@ -56,6 +30,7 @@ const compare = (key, board, home, {r, c}) => {
         }
     }
     if(find === home) return true;
+    else return false;
 }
 
 const search = (key, lock) => {
@@ -75,12 +50,14 @@ const search = (key, lock) => {
             if (lock[i][j] == 0) home++;
         }
     }
+    
+    if(home === 0) return true;
     // 25, 25부터 lock 복사
     
-    for(let i = 0; i < n + 2; i++){
-        for(let j = 0; j < n + 2; j++) {
-            let r = 26 - m + i;
-            let c = 26 - m + j;
+    for(let i = 0; i < 100 - m; i++){
+        for(let j = 0; j < 100 - m; j++) {
+            let r = i;
+            let c = j;
 
             const res = compare(key, board, home, {r, c});
             if (res) return true;
@@ -99,14 +76,12 @@ const solution = (key, lock) => {
     answer = search(rotatedKey, lock);
     if(answer) return true;
 
-    rotatedKey = rotate180(key);
+    rotatedKey = rotate90(rotatedKey);
     answer = search(rotatedKey, lock);
     if(answer) return true;
 
-    rotatedKey = rotate270(key);
+    rotatedKey = rotate90(rotatedKey);
     answer = search(rotatedKey, lock);
 
     return answer;
 };
-
-solution([[0, 0, 0, 1], [1, 0, 1, 0], [0, 1, 1, 0], [1, 1, 1, 1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]]); // key, lock

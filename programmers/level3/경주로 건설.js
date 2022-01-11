@@ -47,10 +47,10 @@ function solution(board) {
         queue.push({ r: nr, c: nc,
                      d: k,
                      cost: costs[nr][nc]
-        });
+                });
+          }
+        }
       }
-    }
-  }
 
   return costs[n - 1][n - 1];
 };

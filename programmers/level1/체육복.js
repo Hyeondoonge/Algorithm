@@ -15,7 +15,7 @@ function solution(n, lost, reserve) {
 
     if (!students[idx]) {
       students[idx] = 1;
-    } else if (idx - 1 >= 1 && !students[idx - 1] && !reserve.includes(idx + 1)) {
+    } else if (idx - 1 >= 1 && !students[idx - 1] && !reserve.includes(idx -1)) {
       students[idx - 1] = 1;
     } else if ((idx + 1 <= n && !students[idx + 1]) && !reserve.includes(idx + 1)) {
       students[idx + 1] = 1;

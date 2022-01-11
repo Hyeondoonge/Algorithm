@@ -1,5 +1,3 @@
-// 효율성 통과 X
-
 let arr;
 
 const move = (c, num, index) => {

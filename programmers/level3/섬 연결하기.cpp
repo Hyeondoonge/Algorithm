@@ -17,7 +17,7 @@ int find(int u) {
 void merge(int u, int v) {
   u = find(u); v = find(v);
   if (u == v) return;
-  parent[u] = v;
+  parent[u] = v;  
 }
 
 int solution(int n, vector<vector<int>> costs) {
@@ -29,7 +29,7 @@ int solution(int n, vector<vector<int>> costs) {
       int b = costs[i][1];
       int cost = costs[i][2];
 
-      q.push({-cost, {a, b}});
+      q.push({ -cost, { a, b }});
     }
 
     int king = -1;

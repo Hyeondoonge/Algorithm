@@ -1,28 +1,10 @@
 function solution(n, s) {
-  const answer = [s];
-  let index = 0;
+  if (s / n < 1) return [-1];
 
-  while (answer.length !== n) {
-    if (answer[index] === 1) break;
+  const answer = Array.from({ length: n }, () => Math.floor(s / n));
 
-    for(let i = 0; i < answer.length; i++) {
-      const fir = Math.ceil(answer[i] / 2); // 큰 수를 나눠 준다.
-      const sec = answer[i] - fir;
-
-      answer[i] = fir;
-      answer.push(sec);
-
-      if (answer.length === n) break;
-      console.log(answer);
-    }
+  for (let i = s % n, k = n - 1; i >= 1; i--, k--) {
+    answer[k]++;
   }
-
-  if (answer.length !== n) {
-    return [-1];
-  }
-  console.log(answer);
-
   return answer;
 }
-
-solution(5, 100);

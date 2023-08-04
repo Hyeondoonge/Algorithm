@@ -1,85 +1,119 @@
-function solution(numbers) {
-  const board = [
-    Array.from({ length: 20 }, (_, idx) => idx * 2),
-    [13, 16, 19],
-    [22, 24],
-    [28, 27, 26],
-    [25, 30, 35],
-    [40, 0]
-  ];
+// '시작'칸 4개의 말
+// 파란색 칸 이동 시작 => 파란색 방향
+// 빨간색 칸 이동 시작 => 빨간색 방향
+// '도착'칸 or 그 너머에 도착하면 이동 종료
+// 총 10개의 턴, 한 턴마다 1~5까지 랜덤, 도착하지 않은 말중 하나를 주사위 수만큼 이동시킴
+// 이동마치는 칸에 다른 말 있으면 선택 불가능, 도착 칸은 상관없음
+// 이동 마친 위치의 점수를 추가함
 
-  const positions = Array.from({ length: 4 }, () => ({ r: 0, c: 0 }));
+// 얻을 수 있는 최대 점수
+
+// input
+// 10개의 수
+
+// output
+// 최대 점수
+
+function solution(diceNumbers) {
+  const map = makeMap();
+  const horse = [map, map, map, map];
   let answer = 0;
 
-  backtracking(0, 0);
+  comb(0, 0);
 
   return answer;
 
-  function backtracking(d, score) {
+  function comb(d, score) {
     if (d === 10) {
-      answer = Math.max(score, answer);
+      answer = Math.max(answer, score);
       return;
     }
 
-    for (let k = 0; k < 4; k++) {
-      // k말을 이동시켰을 때 유효한 이동인지 확인후 그렇다면 keep going
-      const position = positions[k];
+    const number = diceNumbers[d];
 
-      if (isArrive(position)) continue;
+    for (let i = 0; i < 4; i++) {
+      let valid = true;
+      let prev = (cur = horse[i]);
 
-      const newPos = getNewPosition(positions, position, numbers[d]);
+      if (cur.score === 0) continue; // 이미 도착칸이므로 말 이동 X
 
-      if (!newPos) continue;
-      const prevPos = { ...position };
+      cur = cur.next.length === 2 ? cur.next[1] : cur.next[0];
 
-      positions[k] = newPos;
-      const { r, c } = newPos;
+      for (let k = 1; k < number; k++) {
+        if (cur.score === 0) break;
+        cur = cur.next[0];
+      }
 
-      backtracking(d + 1, score + board[r][c]);
-      positions[k] = prevPos;
+      // 다른 말과 비교
+      for (let j = 0; j < 4; j++) {
+        if (i === j) continue;
+        if (cur.score !== 0 && cur === horse[j]) {
+          valid = false;
+          break;
+        }
+      }
+
+      if (!valid) continue; // 동일한 위치에 말 O
+      horse[i] = cur;
+      comb(d + 1, score + horse[i].score);
+      horse[i] = prev;
     }
   }
 }
 
-function isArrive(pos) {
-  return pos.r === 5 && pos.c === 1;
-}
+function makeMap() {
+  const map = { score: -1, next: [] };
 
-// 같은 위치의 말이 있다면 null을 반환
-function getNewPosition(positions, pos, v) {
-  let { r, c } = pos;
+  const end = { score: 0, next: [] };
+  const last = { score: 40, next: [] };
+  last.next[0] = end;
 
-  if (r === 0 && c === 5) {
-    (r = 1), (c = 0);
-    v--;
-  } else if (r === 0 && c === 10) {
-    (r = 2), (c = 0);
-    v--;
-  } else if (r === 0 && c === 15) {
-    (r = 3), (c = 0);
-    v--;
+  const midList = { score: 25, next: [] };
+
+  let prev = midList;
+
+  for (let i = 1; i <= 2; i++) {
+    const newNode = { score: 25 + 5 * i, next: [] };
+
+    prev.next[0] = newNode;
+    prev = newNode;
   }
+  prev.next[0] = last;
 
-  for (let i = 0; i < v; i++) {
-    if (isArrive({ r, c })) return { r, c };
-    if ((r === 0 && c === 19) || (r === 4 && c === 2)) {
-      (r = 5), (c = 0);
-    } else if ((r === 1 && c === 2) || (r === 2 && c === 1) || (r === 3 && c === 2)) {
-      (r = 4), (c = 0);
-    } else {
-      c += 1;
+  prev = map;
+
+  for (let i = 1; i <= 19; i++) {
+    const newNode = { score: i * 2, next: [] };
+
+    prev.next[0] = newNode;
+    prev = newNode;
+
+    if (i === 5) {
+      link(prev, 13, 3, 3, midList);
+    } else if (i === 10) {
+      link(prev, 22, 2, 2, midList);
+    } else if (i === 15) {
+      link(prev, 28, -1, 3, midList);
     }
   }
+  prev.next[0] = last;
 
-  for (let k = 0; k < 4; k++) {
-    const position = positions[k];
-    if (position.r === r && position.c === c) return null;
-  }
-
-  return { r, c };
+  return map;
 }
 
-const fs = require('fs');
-const input = fs.readFileSync('/dev/stdin').toString().trim().split('\n');
+function link(prev, init, s, loop, next) {
+  for (let k = 0; k < loop; k++) {
+    const newNode = { score: init + s * k, next: [] };
 
-console.log(solution(input[0].split(' ')));
+    if (k === 0) prev.next[1] = newNode;
+    else prev.next[0] = newNode;
+    prev = newNode;
+  }
+  prev.next[0] = next;
+}
+
+const fs = require("fs");
+const input = fs.readFileSync("/dev/stdin").toString().trim().split("\n");
+const diceNumbers = input[0].split(" ").map(Number);
+
+console.log(solution(diceNumbers));

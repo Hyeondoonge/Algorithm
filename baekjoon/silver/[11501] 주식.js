@@ -14,7 +14,6 @@
 // 최대 이익 (64bit)
 
 function solution(N, stocks) {
-  const max = Array.from({ length: N }, () => 0);
   let curMax = -1;
 
   let value = 0;
@@ -22,7 +21,6 @@ function solution(N, stocks) {
   for (let i = N - 1; i >= 0; i--) {
     curMax = Math.max(curMax, stocks[i]);
     value += curMax - stocks[i];
-    max[i] = curMax;
   }
 
   return value;

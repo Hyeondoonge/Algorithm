@@ -14,17 +14,16 @@
 // 가능한 카드배열
 
 function solution(number) {
-  const numbers = Array.from(number).map(Number);
   const N = number.length;
   const dp = Array.from({ length: N }, () => [0, 0]); // 한자리, 두자리
   dp[0][0] = 1;
 
   for (let i = 1; i < N; i++) {
-    const number = numbers[i];
-    if (number !== 0) {
+    const m = number[i];
+    if (m != "0") {
       dp[i][0] += dp[i - 1][0] + dp[i - 1][1];
     }
-    if ((1 <= numbers[i - 1] && numbers[i - 1] <= 2) || (numbers[i - 1] === 3 && number <= 4)) {
+    if (("1" <= number[i - 1] && number[i - 1] <= "2") || (number[i - 1] == "3" && m <= "4")) {
       // 1~34
       dp[i][1] += dp[i - 1][0];
     }

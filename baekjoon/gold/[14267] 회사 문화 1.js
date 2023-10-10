@@ -1,22 +1,27 @@
-// 분류:
-// 풀이시간: 1:02~
+// 분류: BFS
+// 풀이시간: 2:02~4:05
 
-// 직속부하 칭찬 시, 그 부하의 직속부하도 연ㅙ적으로 칭찬
-// 칭찬 수치, 부하들이 똑같이 칭찬 받음(?)
-// 각자 받은 칭찬의 수
+// 논리는 맞는데 맞는걸 재확인하느라 시간 소모
+// * 실제 tc에서 칭찬받은 직원 및 수치가 m개 넘게 들어올 수도 있기 떄문에
+// 해당 입력을 받을 때, m개 줄만 무조건 받도록해야함 *
+
+// 상사 -> 직속 부하 칭찬 -> 직속 부하 칭찬 -> 연쇄적...
+// 같은 수치로 부하들이 칭찬 받음
 
 // input
-// n 회사 직원 수 (2~100,000) m 최초 칭찬 횟수 (2~100,000)
-// 상사[i] 직속 상사 번호 (length: 1~n, 1번이 사장 => 상사 X)
-// 칭찬받은직원[i] 번호(2~n) 칭찬수치(1~1,000) (이때, 사장은 칭찬받지않음)
+// n 직원 수 (2~100,000) m 최초 칭찬 횟수 (2~100,000) // 1번부터 n번까지 직원 번호
+// seniors[i] n명의 직속 상사 번호 (* 이 번호는 자신의 번호보다 작음, 이때 1번의 경우 상사 없으므로 -1)
+// employee[i] (2~n) 칭찬 획득 직원 번호 compliment[i] 칭찬 수치 (1~1,000)
+
+// *사장은 칭찬 받지 않음. => 상사가 없다*
 
 // output
-// 1~n번 직원의 칭찬받은 정도
+// 1~n직원이 칭찬 받은 정도
 
 function solution(N, M, relatives, compliments) {
   const adjList = Array.from({ length: N + 1 }, () => []); // 자식
+  const answer = Array.from({ length: N + 1 }, () => 0);
   const complimentList = Array.from({ length: N + 1 }, () => 0);
-  const visitied = Array(N + 1).fill(false);
 
   relatives.forEach((p, index) => {
     if (index !== 0) adjList[p].push(index + 1);
@@ -29,23 +34,19 @@ function solution(N, M, relatives, compliments) {
   const q = [];
   let idx = 0;
 
-  q.push(1);
+  q.push([1, 0]);
 
   while (idx < q.length) {
-    const u = q[idx++];
+    const [u, c] = q[idx++];
+
+    answer[u] = c;
 
     for (let i = 0; i < adjList[u].length; i++) {
       const v = adjList[u][i];
-
-      if (!visitied[v]) {
-        visitied[v] = true;
-        q.push(v);
-        complimentList[v] += complimentList[u];
-      }
+      q.push([v, c + complimentList[v]]);
     }
   }
-
-  return complimentList.slice(1).join(" ");
+  return answer.slice(1).join(" ");
 }
 
 const fs = require("fs");

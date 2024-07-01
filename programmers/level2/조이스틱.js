@@ -1,53 +1,47 @@
-function solution(name) {
-  const n = name.length
+// 비트 연산자를 활용한 풀이
 
-  let target = 0
-  for (let i = 0; i < n; i++) {
-    if (name[i] !== 'A') target++
+function solution(name) {
+  const N = name.length
+
+  let change = 0
+
+  for (let i = 0; i < N; i++) {
+    const a = 'A'.charCodeAt(0) - 58
+    const z = 'Z'.charCodeAt(0) - 58
+    const n = name[i].charCodeAt(0) - 58
+    change += Math.min(n - a, z - n + 1)
   }
 
-  const visitied = Array(n).fill(false)
+  const costs = Array.from({ length: 1 << (N + 1) }, () =>
+    Array.from({ length: N }, () => Infinity)
+  )
 
-  let answer = Infinity
-  visitied[0] = true
+  let init = 0
+  for (let i = 0; i < N; i++) {
+    if (name[i] === 'A') {
+      init += 1 << (N - i - 1)
+    }
+  }
 
-  search(0, diff(name[0]), name[0] === 'A' ? 0 : 1)
+  dfs(init | (1 << (N - 1)), 0, 0)
+  const move = Math.min(...costs[(1 << N) - 1])
 
-  return answer
+  return move + change
 
-  function search(idx, cnt, d) {
-    if (d === target) {
-      answer = Math.min(answer, cnt)
+  function dfs(cur, index, d) {
+    if (costs[cur][index] <= d) {
       return
     }
 
-    for (let k = 1; k < n; k++) {
-      const next = (idx + k) % n
-      if (visitied[next] || name[next] === 'A') continue
-      visitied[next] = true
-      search(next, cnt + diff(name[next]) + k, d + 1)
-      visitied[next] = false
-      break
-    }
+    costs[cur][index] = d
 
-    for (let k = 1; k < n; k++) {
-      let next = (idx - k) % n
-      if (next < 0) {
-        next = n + next
-      }
-      if (visitied[next] || name[next] === 'A') continue
-      visitied[next] = true
-      search(next, cnt + diff(name[next]) + k, d + 1)
-      visitied[next] = false
+    let nextIndex = index - 1 < 0 ? N - 1 : index - 1
+    let nextState = cur | (1 << (N - 1 - nextIndex))
 
-      break
-    }
-  }
+    dfs(nextState, nextIndex, d + 1)
 
-  function diff(param) {
-    const a = 'A'.charCodeAt(0)
-    const z = 'Z'.charCodeAt(0)
-
-    return Math.min(param.charCodeAt(0) - a, z - param.charCodeAt(0) + 1)
+    nextIndex = N <= index + 1 ? 0 : index + 1
+    nextState = cur | (1 << (N - 1 - nextIndex))
+    dfs(nextState, nextIndex, d + 1)
   }
 }

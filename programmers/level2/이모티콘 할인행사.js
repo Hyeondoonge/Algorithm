@@ -1,53 +1,54 @@
 function solution(users, emoticons) {
-  const N = users.length;
-  const M = emoticons.length;
-  const discounts = [10, 20, 30, 40];
+  const N = users.length
+  const M = emoticons.length
 
-  const selectDiscounts = Array.from({ length: M }, () => 0);
+  const result = [null, null]
+  const discounts = [10, 20, 30, 40]
 
-  let answer = [0, 0];
-  dfs(0);
+  const comb = []
+  dfs(0)
 
-  return answer;
+  return result
 
   function dfs(d) {
     if (d === M) {
-      // 모든 이모티콘에 할인율 지정된 상태
-      const [applicants, pay] = resultOfSale();
-      if (answer[0] < applicants || (answer[0] === applicants && answer[1] < pay)) {
-        answer[0] = applicants;
-        answer[1] = pay;
+      const [newbie, earn] = getSalesResult()
+
+      if (result[0] === null || result[0] < newbie) {
+        result[0] = newbie
+        result[1] = earn
+      } else if (result[0] === newbie) {
+        result[1] = Math.max(result[1], earn)
       }
-      return;
+      return
     }
+
     for (let i = 0; i < 4; i++) {
-      const sale = discounts[i];
-      selectDiscounts[d] = sale;
-      dfs(d + 1);
+      comb.push(discounts[i])
+      dfs(d + 1)
+      comb.pop()
     }
   }
 
-  function resultOfSale() {
-    let applicants = 0;
-    let allPay = 0;
+  function getSalesResult() {
+    let newbie = 0
+    let earn = 0
 
     for (let i = 0; i < N; i++) {
-      // 사용자
-      const [wishSale, wishPay] = users[i];
-      let pay = 0;
+      let costs = 0
+      const [reqDiscount, reqCost] = users[i]
       for (let j = 0; j < M; j++) {
-        // 이모티콘
-        if (selectDiscounts[j] < wishSale) continue;
-        pay += emoticons[j] - (emoticons[j] * selectDiscounts[j]) / 100;
+        const discount = comb[j]
+        const emoticonCost = emoticons[j]
+        if (discount < reqDiscount) continue
+        costs += emoticonCost - (emoticonCost * discount) / 100
       }
-
-      if (wishPay <= pay) {
-        applicants += 1;
+      if (reqCost <= costs) {
+        newbie++
       } else {
-        allPay += pay;
+        earn += costs
       }
     }
-
-    return [applicants, allPay];
+    return [newbie, earn]
   }
 }
